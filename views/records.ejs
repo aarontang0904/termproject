@@ -1,0 +1,12 @@
+<ul>
+    <% for (bmi of BMI){%>
+        <li>
+            Name: <%= bmi.userId.username %>
+            <br>  
+            BMI:    <%= bmi.bmi %>
+            <br>
+            <%= bmi.recordedAt %>
+            <a href="/deleteBMI/<%= bmi._id %>"> delete</a>
+        </li>
+    <% } %>
+</ul>
