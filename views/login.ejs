@@ -2,14 +2,16 @@
       
     <div class="col-sm-5">
         <h2>Login</h2>
-        <form method="post" action="/login">
-            username: <input type="text"
-                             autocomplete="username"
-                             name="username"><br>
-            passphrase: <input  type="password"
-                                autocomplete="passphrase"
-                                name="passphrase"><br>
-            <input type="submit">
+        <form method = "post" action="/login">
+            <div class="mb-3">
+                <label for="s1" class="form-label">Name</label>
+                <input type = "text" name = "username" class="form-control" id="s1" placeholder="Input your username">
+            </div>
+            <div class="mb-3">
+                <label for="s2" class="form-label">Password</label>
+                <input type = "password" name = "passphrase"  class="form-control" id="s2" placeholder="Input your password">
+            </div>
+            <div style="text-align: center;"><input type = "submit" value="Submit" class="btn btn-primary"></div>
         </form>
     </div>
   
@@ -20,18 +22,31 @@
     <div class="col-sm-5">
         <h2>Signup</h2>
         <form method="post" action="/signup">
-            username: <input type="text" autocomplete="username" name="username"><br>
-            password:
-               <input type="password" autocomplete="passphrase" name="passphrase"><br>
-            confirm password:
-                <input type="password" name="passphrase2"><br>
-          
-            age: <input type="number" name="age"><br>
-            email: <input type="text" name="email"><br>
-            image link: <input type="text" autocomplete="" name="image"><br>
-          
-          
-            <input type="submit">
+            <div class="mb-3">
+                <label for="ss1" class="form-label">Name</label>
+                <input type = "text" name = "username" class="form-control" id="ss1" placeholder="Input your username">
+            </div>
+            <div class="mb-3">
+                <label for="ss2" class="form-label">Password</label>
+                <input type = "password" name = "passphrase"  class="form-control" id="ss2" placeholder="Input your password">
+            </div>
+                <div class="mb-3">
+                    <label for="ss3" class="form-label">Confirm password</label>
+                    <input type = "password" name = "passphrase2"  class="form-control" id="ss3" placeholder="Input your confirm password">
+                </div>
+                <div class="mb-3">
+                    <label for="ss4" class="form-label">Age</label>
+                    <input type = "number" name = "age"  class="form-control" id="ss4" placeholder="Input your age">
+                </div>
+                <div class="mb-3">
+                    <label for="ss5" class="form-label">Email</label>
+                    <input type = "text" name = "email"  class="form-control" id="ss5" placeholder="Input your email">
+                </div>
+                <div class="mb-3">
+                    <label for="ss6" class="form-label">Image link</label>
+                    <input type = "text" name = "image"  class="form-control" id="ss6" placeholder="Input your image link">
+                </div>  
+        <div style="text-align: center;"><input type = "submit" value="Submit" class="btn btn-primary"></div>
         </form>
     </div>
 </div>

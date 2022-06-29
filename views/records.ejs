@@ -1,3 +1,4 @@
+<h1>Records</h1>
 <ul>
     <% for (bmi of BMI){%>
         <li>
@@ -5,7 +6,7 @@
             <br>  
             BMI:    <%= bmi.bmi %>
             <br>
-            <%= bmi.recordedAt %>
+            Date Recorded: <%= bmi.recordedAt %>
             <a href="/deleteBMI/<%= bmi._id %>"> delete</a>
         </li>
     <% } %>
