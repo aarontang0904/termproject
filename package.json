@@ -16,8 +16,21 @@
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.17.3",
     "git": "^0.1.5",
+    "heroku": "^7.60.2",
     "http-errors": "~1.6.3",
     "mongoose": "^6.3.8",
     "morgan": "~1.9.1"
-  }
+  },
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/aarontang0904/termproject.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aarontang0904/termproject/issues"
+  },
+  "homepage": "https://github.com/aarontang0904/termproject#readme",
+  "description": ""
 }
