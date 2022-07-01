@@ -104,38 +104,6 @@ app.post('/bmi',
   }}
 )
 
-app.get('/rec/:bmi',
-   async (req,res,next) => {
-    try {
-      const bmi = req.params.bmi;
-      var foods=[];
-      if(bmi>50){
-        foods = [
-          {title:"food title one",calorie:"440 cal",image:"https://img2.baidu.com/it/u=4224425761,94435215&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=334"},
-          {title:"food title two",calorie:"540 cal",image:"https://img0.baidu.com/it/u=254960339,835939674&fm=253&fmt=auto&app=138&f=JPEG?w=749&h=500"},
-          {title:"food title three",calorie:"480 cal",image:"https://img0.baidu.com/it/u=1604575839,3885790923&fm=253&fmt=auto&app=138&f=JPEG?w=550&h=344"},
-        ];
-      }else if(bmi>10&&bmi<50){
-        foods = [
-          {title:"food title four",calorie:"440 cal",image:"https://img1.baidu.com/it/u=2890209125,1132165849&fm=253&fmt=auto&app=138&f=JPEG?w=749&h=500"},
-          {title:"food title five",calorie:"540 cal",image:"https://img2.baidu.com/it/u=260814830,796631117&fm=253&fmt=auto&app=138&f=JPEG?w=750&h=500"},
-          {title:"food title six",calorie:"480 cal",image:"https://img2.baidu.com/it/u=3837875590,3892984042&fm=253&fmt=auto&app=138&f=JPEG?w=751&h=500"},
-        ];
-      }else{
-        foods = [
-          {title:"food title seven",calorie:"440 cal",image:"https://img2.baidu.com/it/u=3665215201,387331321&fm=253&fmt=auto&app=138&f=JPEG?w=750&h=500"},
-          {title:"food title eight",calorie:"540 cal",image:"https://img1.baidu.com/it/u=4238610909,2269491595&fm=253&fmt=auto&app=138&f=JPEG?w=658&h=439"},
-          {title:"food title nine",calorie:"480 cal",image:"https://img2.baidu.com/it/u=779430849,2585195269&fm=253&fmt=auto&app=138&f=JPEG?w=750&h=500"},
-        ];
-      }
-      res.locals.foods = foods
-      res.render('gainweight');
-    }catch(e) {
-      next(e)
-    }
-   }
-)
-
 app.get('/addBMI/:bmi',
    isLoggedIn,
    async (req,res,next) => {
