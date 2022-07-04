@@ -125,7 +125,7 @@ app.post('/meals',
     const mealArray = meals.split(",");
     const caloriesIntake = await getCaloriesIntake(mealArray);
     res.locals.calories = caloriesIntake;
-    if (userRecord.length !== 0) {
+    if (res.locals.loggedIn && userRecord.length !== 0) {
       const BMR = userRecord[userRecord.length - 1]["bmr"];
       const BMRCalories = BMR * 1.2;
       if (plan === "Gain weight") {
