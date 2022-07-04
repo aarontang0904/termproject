@@ -6,3 +6,17 @@ body {
 a {
   color: #00B7FF;
 }
+
+th, td {
+  border-top: 5px;
+  padding: 5px;
+}
+
+th {
+  background-color: #00B7FF;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}

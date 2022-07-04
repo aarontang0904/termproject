@@ -1,0 +1,25 @@
+<center>
+<h1>Daily Food Log</h1>
+<form method = "post" action="/meals">
+    <br>
+    Do you want to gain, keep, or loss weight? 
+    <select name="plan">
+        <option>Gain weight</option>
+        <option>Keep weight</option>
+        <option>Lose weight</option>
+    </select>
+    <br>
+    <br>
+    What did you eat in a day? 
+    <input type = "text" name = "meals">
+    <div style="font-size: 11px; color: grey; margin-top: 3px;">Record your diet with ingredients lined with quantity and seperated by comma.</div>
+    <br>
+    <input type="submit" class="btn btn-info" value="Record">
+    <hr>
+    <h3>Your total calories intake today is <kbd><%= calories%></kbd> Kcal.</h3>
+    <% if (pressedRecord) {%>
+        You ate <%= meals%> today.
+    <% } %>
+    <br><div style="color: red;"><%= feedbackRed%></div><div style="color: green;"><%= feedbackGreen%></div>
+</form>
+</center>

@@ -1,13 +1,15 @@
 <h1>Records</h1>
-<ul>
+<table>
+    <tr>
+        <th>Date</th><th>BMI</th><th>Meals</th><th>Total Calories</th><th>Delete record</th>
+    </tr>
     <% for (bmi of BMI){%>
-        <li>
-            Name: <%= bmi.userId.username %>
-            <br>  
-            BMI:    <%= bmi.bmi %>
-            <br>
-            Date Recorded: <%= bmi.recordedAt %>
-            <a href="/deleteBMI/<%= bmi._id %>"> delete</a>
-        </li>
+        <tr>
+        <td><div style="width: 105px" ><%= bmi.recordedAt %></div></td>
+        <td><%= bmi.bmi %></td>
+        <td><%= bmi.meals %></td>
+        <td><%= bmi.calories %> Kcal</td>
+        <td><a href="/deleteBMI/<%= bmi._id %>"> delete</a></td>
+    </tr>    
     <% } %>
-</ul>
+</table>
