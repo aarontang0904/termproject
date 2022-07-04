@@ -7,6 +7,7 @@ var userSchema = Schema( {
   passphrase: String,
   age: String,
   email: String,
+  gender: String,
 } );
 
 module.exports = mongoose.model( 'User', userSchema );

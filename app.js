@@ -14,13 +14,14 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 // *********************************************************** //
 
 const Record = require('./models/Record')
+const User = require('./models/User')
 
 // *********************************************************** //
 //  Connecting to the database
 // *********************************************************** //
 
-const mongoose = require( 'mongoose' );
-const mongodb_URI = process.env.mongodb_URI;
+const mongoose = require('mongoose');
+const mongodb_URI = process.env.mongodb_URI || 'mongodb://127.0.0.1:27017/test';
 
 mongoose.connect( mongodb_URI, { useNewUrlParser: true, useUnifiedTopology: true } );
 // fix deprecation warnings
@@ -82,6 +83,107 @@ app.use(auth)
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
+app.get('/meals',
+  async (req, res, next) => {
+    const userRecord = await Record.find({userId:res.locals.user._id})
+                      .populate('userId')
+    // if (userRecord.length === 0) { 
+    //   res.locals.bmiRecord = "None"
+    // }
+    res.locals.feedbackGreen = ""
+    res.locals.feedbackRed = ""
+    res.locals.calories = "?"
+    res.render('meals');
+    // const BMI = userRecord[userRecord.length - 1]["bmi"]
+  }
+)
+
+async function getCaloriesIntake(mealArray) {
+  var caloriesIntake = 0;
+  for (var i = 0; i < mealArray.length; i++) {
+    const requestBody = {
+          method: 'GET',
+          url: 'https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data',
+          params: {ingr: mealArray[i]},
+          headers: {
+            'X-RapidAPI-Key': '0ce82af957msh3f2873f338a8f3bp19d3cajsn45cef969a283',
+            'X-RapidAPI-Host': 'edamam-edamam-nutrition-analysis.p.rapidapi.com'
+          }
+        };
+    await axios.request(requestBody).then(
+      function (response) {
+        const calories = parseInt(response.data["calories"]);
+        caloriesIntake += calories;
+      }).catch(function (e) {
+        console.error(e);
+      })
+  };
+  return caloriesIntake;
+}
+
+app.post('/meals',
+  async (req,res,next) => {
+    const {plan, meals} = req.body;
+    res.locals.feedbackGreen = ""
+    res.locals.feedbackRed = ""
+    const userRecord = await Record.find({userId:res.locals.user._id})
+                      .populate('userId')
+    const mealArray = meals.split(",");
+    const caloriesIntake = await getCaloriesIntake(mealArray);
+    // var caloriesIntake = 0;
+    // for (var i = 0; i < mealArray.length; i++) {
+    //   const requestBody = {
+    //         method: 'GET',
+    //         url: 'https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data',
+    //         params: {ingr: mealArray[i]},
+    //         headers: {
+    //           'X-RapidAPI-Key': '0ce82af957msh3f2873f338a8f3bp19d3cajsn45cef969a283',
+    //           'X-RapidAPI-Host': 'edamam-edamam-nutrition-analysis.p.rapidapi.com'
+    //         }
+    //       };
+    //   axios.request(requestBody).then(
+    //     function (response) {
+    //       const calories = parseInt(response.data["calories"]);
+    //       caloriesIntake += calories;
+    //     }).catch(function (e) {
+    //       console.error(e);
+    //     }).then( () => {
+    //       console.log(caloriesIntake)
+    //     });
+    // };
+    res.locals.calories = caloriesIntake;
+    if (userRecord.length !== 0) {
+      const BMR = userRecord[userRecord.length - 1]["bmr"];
+      const BMRCalories = BMR * 1.2;
+      if (plan === "Gain weight") {
+        if ( caloriesIntake >= BMRCalories + 500 ) {
+          res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
+        } else {
+          res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too little!"
+        }
+      }
+      else if (plan === "Keep weight") {
+        if ( BMRCalories - 500 < caloriesIntake < BMRCalories + 500 ) {
+          res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
+        } else if ( BMRCalories - 500 >= caloriesIntake ) {
+          res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too little!"
+        } else {
+          res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too much!"
+        }
+      } else {
+        if ( caloriesIntake <= BMRCalories - 500 ) {
+          res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
+        } else {
+          res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too much!"
+        }
+      }
+    } else {
+      res.locals.feedbackRed = "Please add an BMI record first before getting a feedback!"
+    }
+    res.render('meals')
+  }
+)
+
 app.get('/bmi',
   (req, res, next) => {
     res.render('bmi')
@@ -89,21 +191,35 @@ app.get('/bmi',
 )
 
 app.post('/bmi',
-  (req,res,next) => {
-    const {weight, height,plan} = req.body;
+  async (req,res,next) => {
+    const {weight, height} = req.body;
+    const BMI = weight/(height*height)*10000;
+    // calculate BMR
+    const userData = await User.find({username:res.locals.username})
+                      .populate('username');
+    const gender = userData[0]["gender"];
+    const age = userData[0]["age"];
+    var BMR;
+    if (gender === "Male") {
+      BMR = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)
+    } else {
+      BMR = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)
+    }
     res.locals.height = height;
     res.locals.weight = weight;
-    res.locals.BMI = weight/(height*height)*10000;
-    res.locals.plan = plan
+    res.locals.BMI = BMI;
+    res.locals.BMR = BMR;
     res.locals.version = '1.0.0';
+    res.locals.added = ""
     if (res.locals.height===''||res.locals.weight===''){
       res.redirect('/bmi')
-    }else{
+    } else {
       res.render('bmiresults')
-  }}
+  }
+}
 )
 
-app.get('/addBMI/:bmi',
+app.get('/addBMI/:bmi/:bmr',
    isLoggedIn,
    async (req,res,next) => {
     try {
@@ -112,15 +228,16 @@ app.get('/addBMI/:bmi',
           {
             userId:res.locals.user._id,
             bmi:req.params.bmi,
+            bmr:req.params.bmr,
             recordedAt: new Date()}
           )
       await bmiNum.save();
-      res.redirect('/bmi')
+      res.render('bmiresults', {BMI: req.params.bmi, BMR:req.params.bmr, added: "Record added successfully!"});
+      // res.redirect('/bmi')
     }catch(e) {
       next(e)
     }
    }
-
 )
 
 app.get('/deleteBMI/:bmi',
