@@ -88,12 +88,14 @@ app.get('/meals',
     res.locals.feedbackGreen = ""
     res.locals.feedbackRed = ""
     res.locals.calories = "?"
+    res.locals.pressedRecord = false;
     res.render('meals');
   }
 )
 
 async function getCaloriesIntake(mealArray) {
   var caloriesIntake = 0;
+  const foodCalories = [];
   for (var i = 0; i < mealArray.length; i++) {
     const requestBody = {
           method: 'GET',
@@ -106,13 +108,14 @@ async function getCaloriesIntake(mealArray) {
         };
     await axios.request(requestBody).then(
       function (response) {
-        const calories = parseInt(response.data["calories"]);
+        const calories = 0 //parseInt(response.data["calories"]);
+        foodCalories.push(calories);
         caloriesIntake += calories;
       }).catch(function (e) {
         console.error(e);
       })
-  };
-  return caloriesIntake;
+  }; 
+  return foodCalories, caloriesIntake;
 }
 
 app.post('/meals',
@@ -121,24 +124,27 @@ app.post('/meals',
     res.locals.feedbackGreen = ""
     res.locals.feedbackRed = ""
     const mealArray = meals.split(",");
+    res.locals.mealsArray = mealArray;
+    res.locals.meals = meals;
     const caloriesIntake = await getCaloriesIntake(mealArray);
     res.locals.calories = caloriesIntake;
     if (res.locals.loggedIn) {
-      const userRecord = await Record.find({userId:res.locals.user._id})
+      const userRecords = await Record.find({userId:res.locals.user._id})
                       .populate('userId')
-      if (userRecord.length !== 0) {
-        const BMR = userRecord[userRecord.length - 1]["bmr"];
+      if (userRecords.length !== 0) {
+        const record = userRecords[userRecords.length - 1];
+        const BMR = record["bmr"];
         const BMRCalories = BMR * 1.2;
         if (plan === "Gain weight") {
           if ( caloriesIntake >= BMRCalories + 500 ) {
-            res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
+            res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation."
           } else {
             res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too little!"
           }
         }
         else if (plan === "Keep weight") {
           if ( BMRCalories - 500 < caloriesIntake < BMRCalories + 500 ) {
-            res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
+            res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation."
           } else if ( BMRCalories - 500 >= caloriesIntake ) {
             res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too little!"
           } else {
@@ -151,12 +157,18 @@ app.post('/meals',
             res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too much!"
           }
         }
+        const update = { meals: meals, calories: caloriesIntake };
+        await Record.findOneAndUpdate(
+          {userId:res.locals.user._id, recordedAt: record["recordedAt"]},
+          update
+        );
       } else {
         res.locals.feedbackRed = "Please add an BMI record first before getting a feedback!"
       }
     } else {
       res.locals.feedbackRed = "Please log in to record your diet."
     }
+    res.locals.pressedRecord = true;
     res.render('meals')
   }
 )

@@ -16,7 +16,10 @@
     <br>
     <input type="submit" class="btn btn-info" value="Record">
     <hr>
-    <h3>Your calories intake today is <kbd><%= calories%></kbd> Kcal.</h3>
+    <h3>Your total calories intake today is <kbd><%= calories%></kbd> Kcal.</h3>
+    <% if (pressedRecord) {%>
+        You ate <%= meals%> today.
+    <% } %>
     <br><div style="color: red;"><%= feedbackRed%></div><div style="color: green;"><%= feedbackGreen%></div>
 </form>
 </center>
