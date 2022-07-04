@@ -85,16 +85,10 @@ app.use('/users', usersRouter);
 
 app.get('/meals',
   async (req, res, next) => {
-    const userRecord = await Record.find({userId:res.locals.user._id})
-                      .populate('userId')
-    // if (userRecord.length === 0) { 
-    //   res.locals.bmiRecord = "None"
-    // }
     res.locals.feedbackGreen = ""
     res.locals.feedbackRed = ""
     res.locals.calories = "?"
     res.render('meals');
-    // const BMI = userRecord[userRecord.length - 1]["bmi"]
   }
 )
 
@@ -130,27 +124,6 @@ app.post('/meals',
                       .populate('userId')
     const mealArray = meals.split(",");
     const caloriesIntake = await getCaloriesIntake(mealArray);
-    // var caloriesIntake = 0;
-    // for (var i = 0; i < mealArray.length; i++) {
-    //   const requestBody = {
-    //         method: 'GET',
-    //         url: 'https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data',
-    //         params: {ingr: mealArray[i]},
-    //         headers: {
-    //           'X-RapidAPI-Key': '0ce82af957msh3f2873f338a8f3bp19d3cajsn45cef969a283',
-    //           'X-RapidAPI-Host': 'edamam-edamam-nutrition-analysis.p.rapidapi.com'
-    //         }
-    //       };
-    //   axios.request(requestBody).then(
-    //     function (response) {
-    //       const calories = parseInt(response.data["calories"]);
-    //       caloriesIntake += calories;
-    //     }).catch(function (e) {
-    //       console.error(e);
-    //     }).then( () => {
-    //       console.log(caloriesIntake)
-    //     });
-    // };
     res.locals.calories = caloriesIntake;
     if (userRecord.length !== 0) {
       const BMR = userRecord[userRecord.length - 1]["bmr"];
