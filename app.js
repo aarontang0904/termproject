@@ -168,20 +168,22 @@ app.post('/bmi',
     const {weight, height} = req.body;
     const BMI = weight/(height*height)*10000;
     // calculate BMR
-    const userData = await User.find({username:res.locals.username})
+    if (res.locals.loggedIn) {
+      const userData = await User.find({username:res.locals.username})
                       .populate('username');
-    const gender = userData[0]["gender"];
-    const age = userData[0]["age"];
-    var BMR;
-    if (gender === "Male") {
-      BMR = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)
-    } else {
-      BMR = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)
+      const gender = userData[0]["gender"];
+      const age = userData[0]["age"];
+      var BMR;
+      if (gender === "Male") {
+        BMR = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)
+      } else {
+        BMR = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)
+      }
+      res.locals.BMR = BMR;
     }
     res.locals.height = height;
     res.locals.weight = weight;
     res.locals.BMI = BMI;
-    res.locals.BMR = BMR;
     res.locals.version = '1.0.0';
     res.locals.added = ""
     if (res.locals.height===''||res.locals.weight===''){
