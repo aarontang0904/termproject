@@ -21,7 +21,7 @@ const User = require('./models/User')
 // *********************************************************** //
 
 const mongoose = require('mongoose');
-const mongodb_URI = process.env.mongodb_URI; //|| 'mongodb://127.0.0.1:27017/test'
+const mongodb_URI = process.env.mongodb_URI || 'mongodb://127.0.0.1:27017/test';
 
 mongoose.connect( mongodb_URI, { useNewUrlParser: true, useUnifiedTopology: true } );
 // fix deprecation warnings
@@ -120,38 +120,42 @@ app.post('/meals',
     const {plan, meals} = req.body;
     res.locals.feedbackGreen = ""
     res.locals.feedbackRed = ""
-    const userRecord = await Record.find({userId:res.locals.user._id})
-                      .populate('userId')
     const mealArray = meals.split(",");
     const caloriesIntake = await getCaloriesIntake(mealArray);
     res.locals.calories = caloriesIntake;
-    if (res.locals.loggedIn && userRecord.length !== 0) {
-      const BMR = userRecord[userRecord.length - 1]["bmr"];
-      const BMRCalories = BMR * 1.2;
-      if (plan === "Gain weight") {
-        if ( caloriesIntake >= BMRCalories + 500 ) {
-          res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
-        } else {
-          res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too little!"
+    if (res.locals.loggedIn) {
+      const userRecord = await Record.find({userId:res.locals.user._id})
+                      .populate('userId')
+      if (userRecord.length !== 0) {
+        const BMR = userRecord[userRecord.length - 1]["bmr"];
+        const BMRCalories = BMR * 1.2;
+        if (plan === "Gain weight") {
+          if ( caloriesIntake >= BMRCalories + 500 ) {
+            res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
+          } else {
+            res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too little!"
+          }
         }
-      }
-      else if (plan === "Keep weight") {
-        if ( BMRCalories - 500 < caloriesIntake < BMRCalories + 500 ) {
-          res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
-        } else if ( BMRCalories - 500 >= caloriesIntake ) {
-          res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too little!"
+        else if (plan === "Keep weight") {
+          if ( BMRCalories - 500 < caloriesIntake < BMRCalories + 500 ) {
+            res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
+          } else if ( BMRCalories - 500 >= caloriesIntake ) {
+            res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too little!"
+          } else {
+            res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too much!"
+          }
         } else {
-          res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too much!"
+          if ( caloriesIntake <= BMRCalories - 500 ) {
+            res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
+          } else {
+            res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too much!"
+          }
         }
       } else {
-        if ( caloriesIntake <= BMRCalories - 500 ) {
-          res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
-        } else {
-          res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too much!"
-        }
+        res.locals.feedbackRed = "Please add an BMI record first before getting a feedback!"
       }
     } else {
-      res.locals.feedbackRed = "Please add an BMI record first before getting a feedback!"
+      res.locals.feedbackRed = "Please log in to record your diet."
     }
     res.render('meals')
   }
@@ -184,6 +188,7 @@ app.post('/bmi',
     res.locals.height = height;
     res.locals.weight = weight;
     res.locals.BMI = BMI;
+    res.locals.BMR = 0; 
     res.locals.version = '1.0.0';
     res.locals.added = ""
     if (res.locals.height===''||res.locals.weight===''){
