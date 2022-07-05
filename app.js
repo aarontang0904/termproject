@@ -120,13 +120,12 @@ async function getCaloriesIntake(mealArray) {
 
 app.post('/meals',
   async (req,res,next) => {
-    const {plan, meals} = req.body;
+    let {plan, meals} = req.body;
     res.locals.feedbackGreen = ""
     res.locals.feedbackRed = ""
     const mealArray = meals.split(",");
     res.locals.mealsArray = mealArray;
-    res.locals.meals = meals;
-    const caloriesIntake = await getCaloriesIntake(mealArray);
+    let caloriesIntake = await getCaloriesIntake(mealArray);
     res.locals.calories = caloriesIntake;
     if (res.locals.loggedIn) {
       const userRecords = await Record.find({userId:res.locals.user._id})
@@ -134,6 +133,12 @@ app.post('/meals',
       if (userRecords.length !== 0) {
         const record = userRecords[userRecords.length - 1];
         const BMR = record["bmr"];
+        let mealRecord = ""
+        if (record["meals"] !== "No data") {
+          mealRecord = record["meals"];
+        } 
+        meals = meals + ", " + mealRecord;
+        caloriesIntake = record["calories"] + caloriesIntake;
         const BMRCalories = BMR * 1.2;
         if (plan === "Gain weight") {
           if ( caloriesIntake >= BMRCalories + 500 ) {
@@ -168,6 +173,7 @@ app.post('/meals',
     } else {
       res.locals.feedbackRed = "Please log in to record your diet."
     }
+    res.locals.meals = meals;
     res.locals.pressedRecord = true;
     res.render('meals')
   }
@@ -254,7 +260,6 @@ app.get('/showRecord',
             .populate('userId')
       res.locals.BMI = BMI;
       res.render('records')
-
     }catch(e){
       next(e);
     }
