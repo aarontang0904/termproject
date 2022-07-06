@@ -1,3 +1,7 @@
+My app currently record user's BMI, and calculate how much calories they should intake everyday. It also allows the users to record their daily food log and gives them advice from whether they want to gain, keep, or lose weight. 
+
+
+
 The calories intake feedback function at the /meals endpoint estimate one’s daily calories requirement in order to gain, keep, or lose weight based on one’s BMR. 
 BMR represents an estimate of calories burned while resting. In this project, we use the revised Harris-Benedict Equation for one’s BMR estimation. 
 The referenced formulas are listed below:
