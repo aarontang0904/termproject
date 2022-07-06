@@ -95,45 +95,61 @@ app.get('/meals',
 
 async function getCaloriesIntake(mealArray) {
   var caloriesIntake = 0;
-  const foodCalories = [];
   for (var i = 0; i < mealArray.length; i++) {
     const requestBody = {
-          method: 'GET',
-          url: 'https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data',
-          params: {ingr: mealArray[i]},
-          headers: {
-            'X-RapidAPI-Key': '0ce82af957msh3f2873f338a8f3bp19d3cajsn45cef969a283',
-            'X-RapidAPI-Host': 'edamam-edamam-nutrition-analysis.p.rapidapi.com'
-          }
-        };
+      method: 'GET',
+      url: 'https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data',
+      params: {ingr: mealArray[i]},
+      headers: {
+        'X-RapidAPI-Key': '6f865d4e13msha0ebb086c6c763dp10d869jsn4d8bad75acd0',
+        'X-RapidAPI-Host': 'edamam-edamam-nutrition-analysis.p.rapidapi.com'
+      }
+    };
     await axios.request(requestBody).then(
       function (response) {
-        const calories = 0 //parseInt(response.data["calories"]);
-        foodCalories.push(calories);
+        const calories = parseInt(response.data["calories"]);
         caloriesIntake += calories;
       }).catch(function (e) {
         console.error(e);
       })
   }; 
-  return foodCalories, caloriesIntake;
+  return caloriesIntake;
 }
 
 app.post('/meals',
   async (req,res,next) => {
-    const {plan, meals} = req.body;
+    let {plan, meals} = req.body;
     res.locals.feedbackGreen = ""
     res.locals.feedbackRed = ""
     const mealArray = meals.split(",");
     res.locals.mealsArray = mealArray;
-    res.locals.meals = meals;
-    const caloriesIntake = await getCaloriesIntake(mealArray);
-    res.locals.calories = caloriesIntake;
+    let caloriesIntake = await getCaloriesIntake(mealArray);
     if (res.locals.loggedIn) {
       const userRecords = await Record.find({userId:res.locals.user._id})
                       .populate('userId')
       if (userRecords.length !== 0) {
         const record = userRecords[userRecords.length - 1];
         const BMR = record["bmr"];
+        let mealRecord = ""
+        if (record["meals"] !== "No data") {
+          mealRecord = record["meals"];
+        } 
+        meals = meals + ", " + mealRecord;
+        meals = meals.replace(/ /g, '').split(/,/g);
+        const counts = {};
+        for (const meal of meals) {
+          if (meal === "") {
+            continue;
+          }
+          const num = parseInt(meal, 10);
+          const food = meal.replace(/[0-9]/g, '');
+          counts[food] = counts[food] ? counts[food] + num : num;
+        }
+        meals = ""
+        for (const [key, value] of Object.entries(counts)) {
+          meals += (value.toString() + " " + key + ", ")
+        }
+        caloriesIntake = record["calories"] + caloriesIntake;
         const BMRCalories = BMR * 1.2;
         if (plan === "Gain weight") {
           if ( caloriesIntake >= BMRCalories + 500 ) {
@@ -168,6 +184,8 @@ app.post('/meals',
     } else {
       res.locals.feedbackRed = "Please log in to record your diet."
     }
+    res.locals.calories = caloriesIntake;
+    res.locals.meals = meals;
     res.locals.pressedRecord = true;
     res.render('meals')
   }
@@ -254,7 +272,6 @@ app.get('/showRecord',
             .populate('userId')
       res.locals.BMI = BMI;
       res.render('records')
-
     }catch(e){
       next(e);
     }
