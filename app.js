@@ -168,9 +168,9 @@ app.post('/meals',
           }
         } else {
           if ( caloriesIntake <= BMRCalories - 500 ) {
-            res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too much!"
-          } else {
             res.locals.feedbackGreen = "Good! Your calories intake today has met the expectation. "
+          } else {
+            res.locals.feedbackRed = "Oh no! Your calories intake today has not met the expectation. You ate too much!"
           }
         }
         const update = { meals: meals, calories: caloriesIntake };
