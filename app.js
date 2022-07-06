@@ -21,7 +21,7 @@ const User = require('./models/User')
 // *********************************************************** //
 
 const mongoose = require('mongoose');
-const mongodb_URI = process.env.mongodb_URI || 'mongodb://127.0.0.1:27017/test';
+const mongodb_URI = process.env.mongodb_URI;
 
 mongoose.connect( mongodb_URI, { useNewUrlParser: true, useUnifiedTopology: true } );
 // fix deprecation warnings
