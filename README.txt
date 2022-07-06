@@ -1,4 +1,5 @@
-My app currently record user's BMI, and calculate how much calories they should intake everyday. It also allows the users to record their daily food log and gives them advice from whether they want to gain, keep, or lose weight. 
+My app currently record user's BMI, and calculate how much calories they should intake everyday. 
+It also allows the users to record their daily food log and gives them advice from whether they want to gain, keep, or lose weight. 
 
 
 
