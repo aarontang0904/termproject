@@ -18,7 +18,11 @@
     <hr>
     <h3>Your total calories intake today is <kbd><%= calories%></kbd> Kcal.</h3>
     <% if (pressedRecord) {%>
-        You ate <%= meals%> today.
+        <ul>
+            <% for (food of mealList){%>
+            <li><%=food%></li>
+            <% }%>
+          </ul>
     <% } %>
     <br><div style="color: red;"><%= feedbackRed%></div><div style="color: green;"><%= feedbackGreen%></div>
 </form>

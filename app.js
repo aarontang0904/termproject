@@ -122,7 +122,6 @@ app.post('/meals',
     res.locals.feedbackGreen = ""
     res.locals.feedbackRed = ""
     const mealArray = meals.split(",");
-    res.locals.mealsArray = mealArray;
     let caloriesIntake = await getCaloriesIntake(mealArray);
     if (res.locals.loggedIn) {
       const userRecords = await Record.find({userId:res.locals.user._id})
@@ -145,10 +144,13 @@ app.post('/meals',
           const food = meal.replace(/[0-9]/g, '');
           counts[food] = counts[food] ? counts[food] + num : num;
         }
-        meals = ""
+        meal = ""
+        const mealList = [];
         for (const [key, value] of Object.entries(counts)) {
           meals += (value.toString() + " " + key + ", ")
+          mealList.push((value.toString() + " " + key))
         }
+        res.locals.mealList = mealList;
         caloriesIntake = record["calories"] + caloriesIntake;
         const BMRCalories = BMR * 1.2;
         if (plan === "Gain weight") {
@@ -184,6 +186,7 @@ app.post('/meals',
     } else {
       res.locals.feedbackRed = "Please log in to record your diet."
     }
+    res.locals.mealArray = {};
     res.locals.calories = caloriesIntake;
     res.locals.meals = meals;
     res.locals.pressedRecord = true;
