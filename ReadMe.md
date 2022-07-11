@@ -1,3 +1,10 @@
+## Setup
+- npm install
+- npm install nodemon(optional)
+- npm start/nodemon
+
+## Introduction
+
 My app currently record user's BMI, and calculate how much calories they should intake everyday. 
 It also allows the users to record their daily food log and gives them advice from whether they want to gain, keep, or lose weight. 
 
@@ -13,6 +20,8 @@ According to the Harris-Benedict Principle,
 to maintain weight, an individual’s daily Kilocalorie intake should be between BMR * 1.2 - 500 and BMR * 1.2 + 500; 
 to lose weight, the intake should be less than BMR * 1.2 - 500 Kcal; 
 and to gain weight, the intake should be more than BMR * 1.2 + 500 Kcal. 
+
+## Note
 
 One thing to note is the total calories intake calculator at the /meals endpoint uses an online API to fetch data of the calories of the input food. 
 The API has a hard limit of posting 100 requests per day. 
